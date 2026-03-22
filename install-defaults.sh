@@ -34,7 +34,7 @@ fi
 if [ -f "$SETTINGS" ]; then
   if command -v jq &> /dev/null; then
     CHANGED=false
-    TMP=$(mktemp)
+    TMP=$(mktemp "${HOME}/.claude/.settings.tmp.XXXXXX")
     cp "$SETTINGS" "$TMP"
 
     # Add defaultMode: acceptEdits if missing

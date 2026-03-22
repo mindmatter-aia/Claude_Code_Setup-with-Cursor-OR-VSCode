@@ -39,6 +39,8 @@ tar czf "$TARBALL" \
   --exclude='.claude/ide' \
   --exclude='.claude/backups' \
   --exclude='.claude/settings.json.bak' \
+  --exclude='.claude/settings.local.json' \
+  --exclude='.claude/CLAUDE.local.md' \
   --exclude='.claude/skills/browse' \
   --exclude='.claude/skills/gstack' \
   --exclude='.claude/skills/gstack-upgrade' \

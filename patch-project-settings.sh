@@ -36,7 +36,9 @@ if [ "$OLD_PROJECT_DIR" = "$PROJECT_DIR" ]; then
 fi
 
 warn "Patching: ${OLD_PROJECT_DIR} -> ${PROJECT_DIR}"
-sed -i "s|${OLD_PROJECT_DIR}|${PROJECT_DIR}|g" "$SETTINGS"
+SAFE_OLD="$(escape_sed "$OLD_PROJECT_DIR")"
+SAFE_NEW="$(escape_sed "$PROJECT_DIR")"
+sed -i "s|${SAFE_OLD}|${SAFE_NEW}|g" "$SETTINGS"
 
 log "Project settings patched"
 echo ""

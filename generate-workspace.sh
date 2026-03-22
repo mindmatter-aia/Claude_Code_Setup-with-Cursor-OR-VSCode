@@ -40,12 +40,15 @@ if [ -n "$PROJECT_LIST" ]; then
     if [[ "$project" == "$PROJECT_DIR" ]]; then
       continue
     fi
-    # Compute relative path from project dir
-    rel_path="$(python3 -c "import os; print(os.path.relpath('$project', '$PROJECT_DIR'))" 2>/dev/null || echo "$project")"
+    # Compute relative path from project dir (pass as args, not string interpolation)
+    rel_path="$(python3 -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$project" "$PROJECT_DIR" 2>/dev/null || echo "$project")"
+    # Escape JSON special characters in names/paths
+    safe_name="$(printf '%s' "$project_name" | sed 's/["\\]/\\&/g')"
+    safe_path="$(printf '%s' "$rel_path" | sed 's/["\\]/\\&/g')"
     FOLDERS="${FOLDERS},
     {
-      \"name\": \"${project_name}\",
-      \"path\": \"${rel_path}\"
+      \"name\": \"${safe_name}\",
+      \"path\": \"${safe_path}\"
     }"
   done <<< "$PROJECT_LIST"
 fi

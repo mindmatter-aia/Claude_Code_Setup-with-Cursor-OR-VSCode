@@ -29,7 +29,8 @@ if [ ! -d "${PNPM_GLOBAL}/@modelcontextprotocol/server-memory" ]; then
   exit 1
 fi
 
-sed "s|__PNPM_GLOBAL__|${PNPM_GLOBAL}|g" "$TEMPLATE" > "$OUTPUT"
+SAFE_PNPM="$(escape_sed "$PNPM_GLOBAL")"
+sed "s|__PNPM_GLOBAL__|${SAFE_PNPM}|g" "$TEMPLATE" > "$OUTPUT"
 
 log "Generated: ${OUTPUT}"
 info "pnpm global: ${PNPM_GLOBAL}"

@@ -51,6 +51,12 @@ add_shell_block() {
   log "$name added to $(basename "$rc_file")"
 }
 
+# ── Escape sed special characters in a string ───────────────────
+# Usage: escaped="$(escape_sed "$value")"
+escape_sed() {
+  printf '%s' "$1" | sed 's/[&|\\\/]/\\&/g'
+}
+
 # ── Require a command or print install hint ─────────────────────
 # Usage: require_command <cmd> <hint>
 require_command() {

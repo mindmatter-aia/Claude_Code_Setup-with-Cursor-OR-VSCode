@@ -36,30 +36,46 @@ fi
 
 section_header "Importing ~/.claude/ Configuration"
 
+# ── Security: validate tarball contents before extraction ──
+echo "Validating tarball contents..."
+UNSAFE_ENTRIES="$(tar tzf "$TARBALL" 2>/dev/null | grep -vE '^\.?claude/' | grep -v '^\.$' | grep -v '^$' || true)"
+if [ -n "$UNSAFE_ENTRIES" ]; then
+  err "Tarball contains entries outside .claude/ — refusing to extract for safety:"
+  echo "$UNSAFE_ENTRIES" | head -20
+  exit 1
+fi
+
+# ── Always extract to temp dir first, then copy only .claude/ ──
+SAFE_TMPDIR="$(mktemp -d "${HOME}/.claude-import.XXXXXX")"
+echo "Extracting to secure temp dir..."
+tar xzf "$TARBALL" -C "$SAFE_TMPDIR/"
+
+# Verify .claude/ directory exists in the extracted content
+EXTRACTED_CLAUDE=""
+if [ -d "$SAFE_TMPDIR/.claude" ]; then
+  EXTRACTED_CLAUDE="$SAFE_TMPDIR/.claude"
+elif [ -d "$SAFE_TMPDIR/claude" ]; then
+  EXTRACTED_CLAUDE="$SAFE_TMPDIR/claude"
+else
+  err "Tarball does not contain a .claude/ directory"
+  rm -rf "$SAFE_TMPDIR"
+  exit 1
+fi
+
 if [ -d "${HOME}/.claude" ]; then
   if [[ "$REPLACE_MODE" == "true" ]]; then
-    # Full overwrite: back up existing, then extract
     BACKUP="${HOME}/.claude.backup-$(date +%Y%m%d-%H%M%S)"
     warn "Replace mode: backing up existing ~/.claude/ to ${BACKUP}"
     mv "${HOME}/.claude" "$BACKUP"
-    # Extract directly
-    echo "Extracting ${TARBALL}..."
-    tar xzf "$TARBALL" -C "${HOME}/"
+    mv "$EXTRACTED_CLAUDE" "${HOME}/.claude"
   else
-    # Merge mode: extract to temp dir, rsync --ignore-existing
     log "Merge mode: preserving existing ~/.claude/ files"
-    TMPDIR="$(mktemp -d)"
-    echo "Extracting to temp dir..."
-    tar xzf "$TARBALL" -C "$TMPDIR/"
-    echo "Merging new files (existing files are preserved)..."
-    rsync --ignore-existing -a "${TMPDIR}/.claude/" "${HOME}/.claude/"
-    rm -rf "$TMPDIR"
+    rsync --ignore-existing -a "$EXTRACTED_CLAUDE/" "${HOME}/.claude/"
   fi
 else
-  # No existing config — extract directly
-  echo "Extracting ${TARBALL}..."
-  tar xzf "$TARBALL" -C "${HOME}/"
+  mv "$EXTRACTED_CLAUDE" "${HOME}/.claude"
 fi
+rm -rf "$SAFE_TMPDIR"
 
 # Patch hardcoded paths from old user to current user
 OLD_HOME=""
@@ -69,9 +85,11 @@ fi
 
 if [ -n "$OLD_HOME" ] && [ "$OLD_HOME" != "${HOME}" ]; then
   echo "Patching paths: ${OLD_HOME} -> ${HOME}"
+  SAFE_OLD="$(escape_sed "$OLD_HOME")"
+  SAFE_NEW="$(escape_sed "$HOME")"
   find "${HOME}/.claude" -name '*.json' -o -name '*.md' | while read -r file; do
     if grep -q "$OLD_HOME" "$file" 2>/dev/null; then
-      sed -i "s|${OLD_HOME}|${HOME}|g" "$file"
+      sed -i "s|${SAFE_OLD}|${SAFE_NEW}|g" "$file"
     fi
   done
   log "Paths patched"
@@ -79,9 +97,14 @@ else
   log "No path patching needed"
 fi
 
-# Set executable permissions on scripts
-find "${HOME}/.claude" -name '*.sh' -exec chmod +x {} \;
-find "${HOME}/.claude" -name '*.js' -exec chmod +x {} \;
+# Set executable permissions on known script directories only
+for dir in scripts scripts/hooks; do
+  if [ -d "${HOME}/.claude/${dir}" ]; then
+    find "${HOME}/.claude/${dir}" \( -name '*.sh' -o -name '*.js' \) -exec chmod +x {} \;
+  fi
+done
+# Known top-level scripts
+[ -f "${HOME}/.claude/statusline.sh" ] && chmod +x "${HOME}/.claude/statusline.sh"
 
 # Count what was imported
 AGENTS=$(ls "${HOME}/.claude/agents/"*.md 2>/dev/null | wc -l)
