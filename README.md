@@ -8,7 +8,7 @@ Fork this repo, edit `setup.conf`, and give your team a one-command onboarding e
 
 ## What This Does
 
-Running `bash setup-all.sh` on a fresh machine will:
+Running `bash setup-all.sh` will:
 
 1. **Install developer tools** — nvm, Node.js LTS, pnpm, Bun (optional), GitHub CLI, Doppler CLI (optional), and Claude Code itself
 2. **Install MCP servers** — configurable set of [Model Context Protocol](https://modelcontextprotocol.io/) servers (memory, sequential-thinking, GitHub, Context7, n8n) via pnpm
@@ -19,7 +19,22 @@ Running `bash setup-all.sh` on a fresh machine will:
 7. **Set Claude Code defaults** — installs a rich status line (context usage, cost, git branch, rate limits) and enables Accept Edits mode
 8. **Import Claude config** — optionally import `~/.claude/` from another machine (agents, commands, rules, skills) with merge-by-default so existing config isn't destroyed
 
-Everything is **idempotent** — safe to re-run at any time.
+### Safe to run on existing setups
+
+Every script is **idempotent** — it checks what's already installed and skips anything that's present. You don't need a fresh machine. If you already have VS Code, Claude Code, Node.js, or any other tool installed, the setup will detect it and move on:
+
+```
+[SKIP] Node 22 already installed
+[SKIP] pnpm already installed
+[SKIP] Claude Code already installed
+[SKIP] nvm (already configured)      ← shell RC block exists
+```
+
+This makes the setup safe for:
+- **Teammates replicating your environment** — they run the setup on their existing machine and only the missing pieces get added
+- **Adding MCP servers or config** to a machine that already has VS Code + Claude Code
+- **Re-running after updates** — pull the latest setup repo and run again to pick up changes
+- **Importing someone's Claude config** without overwriting your own — merge mode (the default) only adds files you don't already have
 
 ---
 
@@ -58,6 +73,47 @@ bash export-claude-config.sh
 
 # Transfer the tarball, then on the new machine:
 bash setup-all.sh /path/to/claude-config-YYYYMMDD-HHMMSS.tar.gz
+```
+
+---
+
+## Already Have VS Code & Claude Code Installed?
+
+This setup works on machines with existing tools. A common scenario: a teammate wants to replicate your Claude Code setup (agents, MCP servers, skills, status line) on their machine that already has VS Code and Claude running.
+
+**On your machine** (the one with the setup to share):
+```bash
+cd ~/claude-code-setup
+bash export-claude-config.sh
+# Send the tarball to your teammate
+```
+
+**On their machine** (inside WSL2 if on Windows):
+```bash
+# Clone the setup repo
+git clone git@github.com:YOUR-ORG/YOUR-REPO.git ~/claude-code-setup
+cd ~/claude-code-setup
+
+# Configure — point to their projects
+cp setup.conf.example setup.conf
+# Edit: PROJECTS_ROOT, PROJECT_DIR, MCP_SERVERS
+
+# Run with your config export — merge mode preserves their existing ~/.claude/ files
+bash setup-all.sh /path/to/claude-config-*.tar.gz
+```
+
+What happens:
+- Tools already installed (VS Code, Claude Code, Node, etc.) are **skipped**
+- MCP servers not yet installed are **added**
+- Shell RC blocks are **added** (with markers to prevent duplicates)
+- `.mcp.json` and `.code-workspace` are **generated** in their `PROJECT_DIR`
+- Your agents, rules, skills, and commands are **merged** into their `~/.claude/` — their existing files are never overwritten
+
+They can also cherry-pick individual steps instead of running the full setup:
+```bash
+bash install-mcp-packages.sh     # Just add the MCP servers
+bash configure-shell.sh          # Just add shell config blocks
+bash import-claude-config.sh /path/to/config.tar.gz   # Just import your config
 ```
 
 ---
