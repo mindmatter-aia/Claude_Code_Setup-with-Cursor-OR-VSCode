@@ -1,0 +1,25 @@
+# setup.conf — User configuration for setup scripts
+# Copy this to setup.conf and edit before running setup-all.sh
+
+# Where your projects live (setup scans this for existing repos)
+PROJECTS_ROOT="$HOME/projects"
+
+# Node.js major version
+NODE_VERSION="22"
+
+# Optional tools (true/false)
+INSTALL_BUN="true"
+INSTALL_DOPPLER="false"
+
+# Secrets manager: "doppler" or "" (empty = env vars only)
+SECRETS_MANAGER=""
+DOPPLER_PROJECT=""
+DOPPLER_CONFIG=""
+
+# MCP servers to install (comma-separated short names)
+# Available: memory, sequential-thinking, github, context7, n8n-workflow-builder, n8n-mcp
+MCP_SERVERS="memory,sequential-thinking,github,context7"
+
+# Target project directory (where .mcp.json and .code-workspace are generated)
+# Leave empty to use the current working directory when running scripts
+PROJECT_DIR=""

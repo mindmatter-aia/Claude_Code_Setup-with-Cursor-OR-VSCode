@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/@modelcontextprotocol/server-memory/dist/index.js"
+      ],
+      "description": "Persistent memory across sessions"
+    },
+    "sequential-thinking": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/@modelcontextprotocol/server-sequential-thinking/dist/index.js"
+      ],
+      "description": "Enhanced chain-of-thought reasoning"
+    },
+    "github": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/@modelcontextprotocol/server-github/dist/index.js"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}"
+      },
+      "description": "GitHub operations"
+    },
+    "context7": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/@upstash/context7-mcp/dist/index.js"
+      ],
+      "description": "Live documentation lookup"
+    },
+    "n8n-workflow-builder": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/@makafeli/n8n-workflow-builder/build/server.cjs"
+      ],
+      "env": {
+        "N8N_HOST": "${N8N_HOST}",
+        "N8N_API_KEY": "${N8N_API_KEY}"
+      },
+      "description": "n8n CRUD operations"
+    },
+    "n8n-mcp": {
+      "command": "node",
+      "args": [
+        "__PNPM_GLOBAL__/n8n-mcp/dist/mcp/index.js"
+      ],
+      "env": {
+        "N8N_API_URL": "${N8N_HOST}",
+        "N8N_API_KEY": "${N8N_API_KEY}"
+      },
+      "description": "n8n documentation + node knowledge"
+    }
+  }
+}

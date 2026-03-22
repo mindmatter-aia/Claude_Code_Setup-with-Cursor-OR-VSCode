@@ -1,0 +1,22 @@
+# Machine-specific config
+setup.conf
+.discovered-projects
+
+# Export tarballs
+export/
+
+# Environment
+.env
+.env.local
+
+# Generated files
+.mcp.json
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
