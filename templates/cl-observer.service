@@ -1,0 +1,15 @@
+[Unit]
+Description=Continuous Learning v2 — observer loop (analyzes observations, writes instincts, renders instincts.md every 5 min)
+Documentation=file://%h/.claude/skills/continuous-learning-v2/SKILL.md
+After=default.target
+
+[Service]
+Type=simple
+# %h = the user's home dir, so this unit is username/path agnostic across machines.
+# The script's PATH guard ensures the nvm-managed `claude` is used even here (headless).
+ExecStart=/bin/bash %h/.claude/skills/continuous-learning-v2/agents/start-observer.sh _loop
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target

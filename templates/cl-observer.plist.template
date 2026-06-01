@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Continuous Learning v2 observer — macOS launchd LaunchAgent.
+  __HOME__ is replaced with the actual $HOME by install-cl-observer.sh
+  (launchd does NOT expand ~ or environment vars in paths).
+  RunAtLoad + KeepAlive => starts at login and is restarted if it dies,
+  mirroring the systemd unit's behavior. The script's own PATH guard
+  prepends the nvm `claude`; the PATH below covers Homebrew installs.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.patriotagentic.cl-observer</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__HOME__/.claude/skills/continuous-learning-v2/agents/start-observer.sh</string>
+        <string>_loop</string>
+    </array>
+
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/.claude/homunculus/launchd-observer.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.claude/homunculus/launchd-observer.log</string>
+</dict>
+</plist>

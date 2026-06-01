@@ -111,6 +111,14 @@ else
   info "machine, then: bash import-claude-config.sh <tarball>"
 fi
 
+# Install the Continuous Learning v2 observer as an OS-native service
+# (systemd on Linux/WSL2, launchd on macOS). Idempotent; self-skips if the
+# CL-v2 skill isn't present. Runs after import so the skill exists.
+echo ""
+echo "Finalizing: Continuous Learning observer..."
+echo "─────────────────────────────────────"
+bash "${SCRIPT_DIR}/install-cl-observer.sh" || true
+
 echo ""
 echo "======================================================="
 echo "  Setup complete! Running verification..."

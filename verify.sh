@@ -110,6 +110,15 @@ echo "     commands: ${COMMANDS} files"
 echo "     rules:    ${RULES} files"
 
 echo ""
+echo "── Continuous Learning v2 ──"
+warn_check "instincts.md rendered"        test -f "${HOME}/.claude/instincts.md"
+warn_check "CL-v2 skill present"          test -x "${HOME}/.claude/skills/continuous-learning-v2/agents/start-observer.sh"
+case "$PLATFORM" in
+  linux|wsl2) warn_check "cl-observer (systemd) active" systemctl --user is-active --quiet cl-observer.service ;;
+  macos)      warn_check "cl-observer (launchd) loaded" bash -c 'launchctl list 2>/dev/null | grep -q com.patriotagentic.cl-observer' ;;
+esac
+
+echo ""
 echo "── Project Files ──"
 check ".mcp.json"                  test -f "${PROJECT_DIR}/.mcp.json"
 warn_check ".env"                  test -f "${PROJECT_DIR}/.env"
