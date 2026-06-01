@@ -78,7 +78,7 @@ if [[ "${INSTALL_BUN}" == "true" ]]; then
   if command -v bun &> /dev/null; then
     skip "Bun already installed"
   else
-    curl -fsSL https://bun.sh/install | bash
+    curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.11"
     export BUN_INSTALL="${HOME}/.bun"
     export PATH="${BUN_INSTALL}/bin:${PATH}"
     log "Bun installed"
