@@ -35,7 +35,6 @@ tar czf "$TARBALL" \
   --exclude='.claude/file-history' \
   --exclude='.claude/shell-snapshots' \
   --exclude='.claude/session-env' \
-  --exclude='.claude/projects' \
   --exclude='.claude/ide' \
   --exclude='.claude/backups' \
   --exclude='.claude/settings.json.bak' \
@@ -48,6 +47,22 @@ tar czf "$TARBALL" \
   --exclude='.claude/telemetry' \
   --exclude='.claude/history.jsonl' \
   --exclude='node_modules' \
+  `# projects/: keep auto-memory (projects/*/memory + MEMORY.md), drop session` \
+  `# transcripts and UUID-named session dirs. 'memory' has no hyphens, so the` \
+  `# 5-group UUID glob below spares it while pruning 327d2266-df08-... entries.` \
+  --exclude='.claude/projects/*/*-*-*-*-*' \
+  --exclude='.claude/projects/*/*.jsonl' \
+  `# CL-v2: keep instincts + config + evolved, drop machine-specific runtime` \
+  --exclude='.claude/homunculus/observations.jsonl' \
+  --exclude='.claude/homunculus/observations.archive' \
+  --exclude='.claude/homunculus/.observer.pid' \
+  --exclude='.claude/homunculus/observer.log' \
+  --exclude='.claude/homunculus/observer-cost.log' \
+  --exclude='.claude/homunculus/launchd-observer.log' \
+  --exclude='.claude/homunculus/.analysis-summary.json' \
+  --exclude='.claude/homunculus/.domain-summary.md' \
+  --exclude='.claude/homunculus/.observer-prompt.tmp' \
+  --exclude='.claude/homunculus/.claude-cycle.log' \
   .claude/
 
 SIZE=$(du -h "$TARBALL" | cut -f1)
