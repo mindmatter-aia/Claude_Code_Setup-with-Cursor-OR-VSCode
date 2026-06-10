@@ -7,6 +7,12 @@
   RunAtLoad + KeepAlive => starts at login and is restarted if it dies,
   mirroring the systemd unit's behavior. The script's own PATH guard
   prepends the nvm `claude`; the PATH below covers Homebrew installs.
+
+  Interpreter is `/usr/bin/env bash` (NOT /bin/bash): macOS ships bash 3.2,
+  which lacks BASHPID (used by start-observer.sh under `set -u`) and would
+  crash-loop. /usr/bin/env resolves bash from the PATH below, picking up
+  Homebrew's bash 5.x (install-tools.sh installs `bash`). Works on both
+  Apple-Silicon (/opt/homebrew) and Intel (/usr/local).
 -->
 <plist version="1.0">
 <dict>
@@ -15,7 +21,8 @@
 
     <key>ProgramArguments</key>
     <array>
-        <string>/bin/bash</string>
+        <string>/usr/bin/env</string>
+        <string>bash</string>
         <string>__HOME__/.claude/skills/continuous-learning-v2/agents/start-observer.sh</string>
         <string>_loop</string>
     </array>
