@@ -28,7 +28,7 @@ PROJECT_LIST=""
 if [ -f "$DISCOVERED" ] && [ -s "$DISCOVERED" ]; then
   PROJECT_LIST="$(cat "$DISCOVERED")"
 elif [ -d "$PROJECTS_ROOT" ]; then
-  PROJECT_LIST="$(find "$PROJECTS_ROOT" -maxdepth 2 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||' | sort)"
+  PROJECT_LIST="$(find "$PROJECTS_ROOT" -maxdepth 3 -name ".git" -type d 2>/dev/null | sed 's|/\.git$||' | sort)"
 fi
 
 # Add each discovered project with correct relative path
