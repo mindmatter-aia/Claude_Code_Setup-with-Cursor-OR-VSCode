@@ -1,0 +1,15 @@
+[Unit]
+Description=Monthly VPS security audit schedule
+Documentation=file://%h/.claude/commands/vps-security-audit.md
+
+[Timer]
+# 1st of each month, 00:00, jittered up to 1h to avoid a thundering herd.
+OnCalendar=monthly
+RandomizedDelaySec=1h
+# Persistent=true = anacron-style catch-up: if the machine was off at the
+# scheduled time (common for a laptop/WSL2 box), run on the next boot/login.
+Persistent=true
+Unit=vps-security-audit.service
+
+[Install]
+WantedBy=timers.target

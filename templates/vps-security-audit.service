@@ -1,0 +1,13 @@
+[Unit]
+Description=Monthly VPS security audit (pa-vps, elevated-vps)
+Documentation=file://%h/.claude/commands/vps-security-audit.md
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as the invoking user (correct $HOME, user-owned lock/reports) — unlike the
+# old /etc/anacrontab entry which ran as root with HOME=/root and always failed.
+# %h keeps this host/user agnostic; the script sets its own PATH for nvm `claude`.
+ExecStart=/bin/bash -c '%h/.claude/scripts/vps-security-audit.sh >> %h/.claude/security-reviews/vps-audit-cron.log 2>&1'
+# Audit invokes `claude -p` per VPS (each budget-capped at $5); allow ample wall-clock.
+TimeoutStartSec=2700

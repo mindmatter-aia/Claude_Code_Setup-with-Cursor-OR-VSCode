@@ -17,6 +17,15 @@ section_header "Configuring $(basename "$RC_FILE") (${PLATFORM})"
 # Ensure RC file exists
 touch "$RC_FILE"
 
+# ── Homebrew (platform-aware) ──
+# macOS Apple-Silicon: /opt/homebrew · macOS Intel: /usr/local · Linux: linuxbrew.
+# Resolved at shell-init via the first brew that exists, so the same block is
+# correct on every machine (replaces the WSL2-hardcoded HOMEBREW_PREFIX export).
+add_shell_block "$RC_FILE" "homebrew" 'for _brew in /opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  if [ -x "$_brew" ]; then eval "$("$_brew" shellenv)"; break; fi
+done
+unset _brew'
+
 # ── nvm ──
 add_shell_block "$RC_FILE" "nvm" 'export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -35,15 +44,28 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac'
 
-# ── Claude Code (with or without Doppler wrapper) ──
+# ── Claude Code (with or without Doppler wrapper) + /prime shortcuts ──
+# cs = prime a normal session; cr = prime with skip-permissions (review before
+# relying on cr — it bypasses tool approvals).
 if [[ "${SECRETS_MANAGER}" == "doppler" ]]; then
-  add_shell_block "$RC_FILE" "claude" 'claude() {
+  CLAUDE_BLOCK="$(cat <<'EOF'
+claude() {
   doppler run -- claude "$@"
-}'
+}
+alias cs='claude "/prime"'
+alias cr='claude --dangerously-skip-permissions "/prime"'
+EOF
+)"
 else
-  add_shell_block "$RC_FILE" "claude" '# Claude Code — no secrets wrapper
-# If using a secrets manager, set SECRETS_MANAGER in setup.conf'
+  CLAUDE_BLOCK="$(cat <<'EOF'
+# Claude Code — no secrets wrapper
+# If using a secrets manager, set SECRETS_MANAGER in setup.conf
+alias cs='claude "/prime"'
+alias cr='claude --dangerously-skip-permissions "/prime"'
+EOF
+)"
 fi
+add_shell_block "$RC_FILE" "claude" "$CLAUDE_BLOCK"
 
 # ── Editor detection (platform-aware) ──
 IDES="$(detect_ides)"
@@ -80,6 +102,10 @@ fi
 # ── SSH agent auto-start (platform-aware) ──
 SSH_BLOCK="$(get_ssh_agent_block)"
 add_shell_block "$RC_FILE" "ssh-agent" "$SSH_BLOCK"
+
+# ── Telemetry opt-out ──
+add_shell_block "$RC_FILE" "telemetry-opt-out" 'export DO_NOT_TRACK=1
+export NEXT_TELEMETRY_DISABLED=1'
 
 echo ""
 echo "Done. Run: source ${RC_FILE}"

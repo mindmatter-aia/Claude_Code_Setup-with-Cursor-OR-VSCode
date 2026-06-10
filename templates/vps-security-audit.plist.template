@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Monthly VPS security audit — macOS launchd LaunchAgent.
+  Mirrors the systemd vps-security-audit.timer/.service pair.
+  __HOME__ is replaced with the actual $HOME by install-vps-audit.sh
+  (launchd does NOT expand ~ or environment vars in paths).
+
+  Scheduling notes vs systemd:
+    - StartCalendarInterval {Day=1, Hour=0, Minute=0} == OnCalendar=monthly.
+    - launchd has no RandomizedDelaySec equivalent; the systemd jitter only
+      mattered for a fleet, so it is intentionally dropped for a single Mac.
+    - Catch-up (~ Persistent=true): if the Mac is asleep at the fire time
+      launchd runs the job on wake; if it was powered off across the window,
+      launchd runs the missed calendar job at next login/agent load.
+    - No RunAtLoad / no KeepAlive: this is a oneshot, not a daemon.
+
+  The audit shells into pa-vps/elevated-vps and runs `claude -p` per host, so
+  it needs SSH keys loaded and network up at run time. The script self-guards
+  its PATH to find the nvm `claude`; the PATH below covers Homebrew binaries.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.patriotagentic.vps-security-audit</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>__HOME__/.claude/scripts/vps-security-audit.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Day</key>
+        <integer>1</integer>
+        <key>Hour</key>
+        <integer>0</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/.claude/security-reviews/vps-audit-cron.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.claude/security-reviews/vps-audit-cron.log</string>
+</dict>
+</plist>

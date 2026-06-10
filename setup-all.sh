@@ -119,6 +119,14 @@ echo "Finalizing: Continuous Learning observer..."
 echo "─────────────────────────────────────"
 bash "${SCRIPT_DIR}/install-cl-observer.sh" || true
 
+# Install the monthly VPS security audit as an OS-native scheduled job
+# (systemd user timer on Linux/WSL2, launchd LaunchAgent on macOS). Idempotent;
+# self-skips if the audit script isn't present. Runs after import so it exists.
+echo ""
+echo "Finalizing: VPS security audit schedule..."
+echo "─────────────────────────────────────"
+bash "${SCRIPT_DIR}/install-vps-audit.sh" || true
+
 echo ""
 echo "======================================================="
 echo "  Setup complete! Running verification..."

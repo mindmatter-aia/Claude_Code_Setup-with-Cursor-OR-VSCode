@@ -160,16 +160,20 @@ get_ssh_agent_block() {
   platform="$(detect_platform)"
 
   if [[ "$platform" == "macos" ]]; then
-    # macOS: Keychain handles ssh-agent, just ensure key is added
+    # macOS: Keychain handles ssh-agent, just ensure keys are added.
+    # Add the VPS key too (id_ed25519_vps gates pa-vps/elevated-vps); each is a
+    # no-op if the file is absent on this machine.
     cat << 'BLOCK'
 # macOS Keychain handles ssh-agent automatically
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519 2>/dev/null
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519_vps 2>/dev/null
 BLOCK
   else
     cat << 'BLOCK'
 if [ -z "$SSH_AUTH_SOCK" ]; then
   eval "$(ssh-agent -s)" > /dev/null 2>&1
   ssh-add ~/.ssh/id_ed25519 2>/dev/null
+  ssh-add ~/.ssh/id_ed25519_vps 2>/dev/null
 fi
 BLOCK
   fi
