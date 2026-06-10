@@ -1,41 +1,31 @@
 {
   "mcpServers": {
     "memory": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/@modelcontextprotocol/server-memory/dist/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
       "description": "Persistent memory across sessions"
     },
     "sequential-thinking": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/@modelcontextprotocol/server-sequential-thinking/dist/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "description": "Enhanced chain-of-thought reasoning"
     },
     "github": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/@modelcontextprotocol/server-github/dist/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PAT}"
       },
       "description": "GitHub operations"
     },
     "context7": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/@upstash/context7-mcp/dist/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
       "description": "Live documentation lookup"
     },
     "n8n-workflow-builder": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/@makafeli/n8n-workflow-builder/build/server.cjs"
-      ],
+      "command": "npx",
+      "args": ["-y", "@makafeli/n8n-workflow-builder"],
       "env": {
         "N8N_HOST": "${N8N_HOST}",
         "N8N_API_KEY": "${N8N_API_KEY}"
@@ -43,10 +33,8 @@
       "description": "n8n CRUD operations"
     },
     "n8n-mcp": {
-      "command": "node",
-      "args": [
-        "__PNPM_GLOBAL__/n8n-mcp/dist/mcp/index.js"
-      ],
+      "command": "npx",
+      "args": ["-y", "n8n-mcp"],
       "env": {
         "N8N_API_URL": "${N8N_HOST}",
         "N8N_API_KEY": "${N8N_API_KEY}"

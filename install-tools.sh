@@ -22,7 +22,8 @@ case "$PKG_MGR" in
       err "Homebrew not found. Install it first: https://brew.sh"
       exit 1
     fi
-    brew install git curl jq gh rsync 2>/dev/null || true
+    # bash: macOS ships 3.2 (no BASHPID); cl-observer launchd agent needs 5.x
+    brew install git curl jq gh rsync bash 2>/dev/null || true
     log "System packages installed (brew)"
     ;;
   apt)
